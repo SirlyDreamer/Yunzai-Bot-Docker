@@ -36,6 +36,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 RUN git clone --depth=1 --branch main https://gitee.com/Le-niao/Yunzai-Bot.git /app/Yunzai-Bot\
     && cd /app/Yunzai-Bot \
+    && sed -i 's/127.0.0.1/redis/g' ./config/default_config/redis.yaml \
     && pnpm install -P
 
 COPY --from=resource /res/entrypoint.sh /app/Yunzai-Bot/entrypoint.sh
