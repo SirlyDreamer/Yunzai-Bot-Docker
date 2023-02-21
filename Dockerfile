@@ -5,7 +5,7 @@ RUN apt-get update \
     && apt-get install -y wget xz-utils dos2unix \
     && wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-$(dpkg --print-architecture)-static.tar.xz \
     && mkdir -p /res/ffmpeg \
-    && tar -xvf ./ffmpeg-git-$(dpkg --print-architecture)-static.tar.xz -C /res/ffmpeg --strip-components 1 \
+    && tar -xvf ./ffmpeg-git-$(dpkg --print-architecture)-static.tar.xz -C /res/ffmpeg --strip-components 1
     
 COPY docker-entrypoint.sh /res/entrypoint.sh
 
