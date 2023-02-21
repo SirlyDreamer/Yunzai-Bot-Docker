@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set +e
 
@@ -14,6 +14,8 @@ Warn="${YellowBG}[提示]${Font}"
 WORK_DIR="/app/Yunzai-Bot"
 MIAO_PLUGIN_PATH="/app/Yunzai-Bot/plugins/miao-plugin"
 XIAOYAO_CVS_PATH="/app/Yunzai-Bot/plugins/xiaoyao-cvs-plugin"
+PY_PLUGIN_PATH="/app/Yunzai-Bot/plugins/py-plugin"
+PYTHON_PLUGIN_PATH="/app/Yunzai-Bot/plugins/python-plugin"
 
 if [[ ! -d "$HOME/.ovo" ]]; then
     mkdir ~/.ovo
@@ -70,6 +72,56 @@ if [ -d $MIAO_PLUGIN_PATH"/.git" ]; then
     fi
 
     echo -e "\n ================ \n ${Version} ${BlueBG} 喵喵插件版本信息 ${Font} \n ================ \n"
+    git log -1 --pretty=format:"%h - %an, %ar (%cd) : %s"
+
+fi
+
+if [ -d $PYTHON_PLUGIN_PATH"/.git" ]; then
+
+    cd $PYTHON_PLUGIN_PATH
+
+    if [[ ! -f "$HOME/.ovo/python.ok" ]]; then
+        set -e
+        echo -e "\n ================ \n ${Info} ${GreenBG} 更新Python运行依赖 ${Font} \n ================ \n"
+        pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple -r $PYTHON_PLUGIN_PATH"/requirement.txt"
+        touch ~/.ovo/python.ok
+        set +e
+    fi
+    
+    if [ ! -d $XIAOYAO_CVS_PATH ]; then  
+        echo -e "\n ${Warn} ${YellowBG} 由于Python插件依赖xiaoyao-cvs-plugin，检测到目前没有安装，开始自动下载 ${Font} \n"
+        git clone https://gitee.com/Ctrlcvs/xiaoyao-cvs-plugin.git $XIAOYAO_CVS_PATH"/"
+    fi
+fi
+
+if [ -d $PY_PLUGIN_PATH"/.git" ]; then
+
+    echo -e "\n ================ \n ${Info} ${GreenBG} 拉取 py-plugin 插件更新 ${Font} \n ================ \n"
+
+    cd $PY_PLUGIN_PATH
+
+    if [[ -n $(git status -s) ]]; then
+        echo -e " ${Warn} ${YellowBG} 当前工作区有修改，尝试暂存后更新。${Font}"
+        git add .
+        git stash
+        git pull origin main --allow-unrelated-histories --rebase
+        git stash pop
+    else
+        git pull origin main --allow-unrelated-histories
+    fi
+
+    if [[ ! -f "$HOME/.ovo/py.ok" ]]; then
+        set -e
+        echo -e "\n ================ \n ${Info} ${GreenBG} 更新 py-plugin 运行依赖 ${Font} \n ================ \n"
+        npm install iconv-lite @grpc/grpc-js @grpc/proto-loader
+        poetry config virtualenvs.in-project true
+        poetry install
+        touch ~/.ovo/py.ok
+        set +e
+    fi
+
+    echo -e "\n ================ \n ${Version} ${BlueBG} py-plugin 插件版本信息 ${Font} \n ================ \n"
+
     git log -1 --pretty=format:"%h - %an, %ar (%cd) : %s"
 
 fi
